@@ -30,9 +30,9 @@ hp = HParams(
     run_on_val_and_test_every=100,
 
     batch_size=128,
-    # num_training_iterations=50000,
-    num_training_iterations=250,
-    run_exps_amount=2,
+    num_training_iterations=50000,
+    # num_training_iterations=250,
+    run_exps_amount=5,
     inference_batch_sizes=256,              # Batch size to use to calculate the accuarcy on train, val, and test sets.
 
 # ------------------------------------ Model Config -------------------------------------------------------------------------------------------
