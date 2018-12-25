@@ -1,5 +1,5 @@
 # SSAN-self-attention-sentiment-analysis-classification
-Code for the paper "Self-Attention: A Better Building Block for Sentiment Analysis Neural Network Classifiers": http://aclweb.org/anthology/W18-6219 . This paper was published in WASSA 2018 (9th Workshop on Computational Approaches to Subjectivity, Sentiment &amp; Social Media Analysis),  held in conjuction with EMNLP 2018.
+Code for the paper "Self-Attention: A Better Building Block for Sentiment Analysis Neural Network Classifiers": http://aclweb.org/anthology/W18-6219, https://arxiv.org/abs/1812.07860 . This paper was published in WASSA 2018 (9th Workshop on Computational Approaches to Subjectivity, Sentiment &amp; Social Media Analysis),  held in conjuction with EMNLP 2018.
 
 Contact: aambarts@sfu.ca
 
