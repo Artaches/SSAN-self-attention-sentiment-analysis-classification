@@ -259,8 +259,7 @@ def multi_head_attention(input_sequence, dropout_keep_prob_tensor):
 
 def encoder_layer(input_sequence, dropout_keep_prob_tensor):
     self_attention_layer = multi_head_attention(input_sequence, dropout_keep_prob_tensor)
-    if hp.self_attention_sublayer_dropout:
-        self_attention_layer = tf.nn.dropout(self_attention_layer, keep_prob=dropout_keep_prob_tensor)          # ignore some input info to regularize the model
+    
     if hp.self_attention_sublayer_residual_and_norm:
         self_attention_layer = tf.add(self_attention_layer, input_sequence)
         self_attention_layer = tf.contrib.layers.layer_norm(self_attention_layer)
@@ -271,8 +270,8 @@ def encoder_layer(input_sequence, dropout_keep_prob_tensor):
                                           kernel_initializer=tf.glorot_normal_initializer(), bias_initializer=tf.zeros_initializer())
         ffnn_sublayer_output = tf.layers.dense(ffnn_sublayer_output, hp.model_dim, activation=tf.nn.relu, use_bias=True,
                                           kernel_initializer=tf.glorot_normal_initializer(), bias_initializer=tf.zeros_initializer())
-
-        ffnn_sublayer_output = tf.nn.dropout(ffnn_sublayer_output, keep_prob=dropout_keep_prob_tensor)          # ignore some input info to regularize the model
+        if hp.ffnn_sublayer_dropout:
+             ffnn_sublayer_output = tf.nn.dropout(ffnn_sublayer_output, keep_prob=dropout_keep_prob_tensor)          # ignore some input info to regularize the model
         ffnn_sublayer_output = tf.add(ffnn_sublayer_output, self_attention_layer)
         encoder_layer_output = tf.contrib.layers.layer_norm(ffnn_sublayer_output)
     else:
