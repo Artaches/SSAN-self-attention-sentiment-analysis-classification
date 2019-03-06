@@ -42,7 +42,7 @@ hp = HParams(
 
     # SSAN
     num_layers=1,
-    self_attention_heads=1,
+    self_attention_heads=4,
     qkv_projections_bias_and_activation=True,
     self_attention_sublayer_bias_and_activation=True,
     ffnn_sublayer=False,
@@ -232,9 +232,9 @@ def multi_head_attention(input_sequence, dropout_keep_prob_tensor):
     qkv_dim = hp.model_dim / hp.self_attention_heads
 
     # Construct the Q, K, V matrices
-    q = project_qkv(input_sequence, qkv_dim, hp.qkv_projections_bias_and_activation)
-    k = project_qkv(input_sequence, qkv_dim, hp.qkv_projections_bias_and_activation)
-    v = project_qkv(input_sequence, qkv_dim, hp.qkv_projections_bias_and_activation)
+    q = project_qkv(input_sequence, hp.model_dim, hp.qkv_projections_bias_and_activation)
+    k = project_qkv(input_sequence, hp.model_dim, hp.qkv_projections_bias_and_activation)
+    v = project_qkv(input_sequence, hp.model_dim, hp.qkv_projections_bias_and_activation)
     qs, ks, vs = split_heads(q, k, v)
 
     if hp.use_relative_positions:
@@ -251,7 +251,8 @@ def multi_head_attention(input_sequence, dropout_keep_prob_tensor):
         san_output = tf.layers.dense(san_output, hp.model_dim, activation=tf.nn.relu, use_bias=False, kernel_initializer=tf.glorot_normal_initializer())
 
     if hp.self_attention_sublayer_dropout:
-        san_output = tf.nn.dropout(san_output, keep_prob=dropout_keep_prob_tensor)          # ignore some input info to regularize the model
+        san_output = tf.nn.dropout(san_output, keep_prob=(dropout_keep_prob_tensor - 0.2))          # ignore some input info to regularize the model
+        print("multi-head attention dropout more:", 0.2)
 
     return san_output
 
@@ -259,7 +260,7 @@ def multi_head_attention(input_sequence, dropout_keep_prob_tensor):
 
 def encoder_layer(input_sequence, dropout_keep_prob_tensor):
     self_attention_layer = multi_head_attention(input_sequence, dropout_keep_prob_tensor)
-    
+
     if hp.self_attention_sublayer_residual_and_norm:
         self_attention_layer = tf.add(self_attention_layer, input_sequence)
         self_attention_layer = tf.contrib.layers.layer_norm(self_attention_layer)
@@ -342,11 +343,14 @@ def printNumberOfParams():
         # print("shape:", shape, "len(shape):", len(shape))
         variable_parameters = 1
         for dim in shape:
-            # print("\t", dim)
+            print("\t", dim)
             variable_parameters *= dim.value
-        # print("\tparams:", variable_parameters)
+        print("\tparams:", variable_parameters)
         total_parameters += variable_parameters
     print("\nNumber of trainable parameters in the network:", total_parameters)
+
+    total_parameters2 = np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
+    print("total_parameters2:", total_parameters2)
 
 
 
@@ -391,6 +395,7 @@ def createAndTrainTransformer(datasets, wordIndxToVecMatrix, wordIndxToVec_tenso
         topValidationSaves = []
 
 
+        printNumberOfParams()
         for iteration in range(1, hp.num_training_iterations):
             iteration_start_time = datetime.now()
 
@@ -598,10 +603,10 @@ def run_model_on_datasets_with_embeddings(embedding_file, file_type):
 
 
     datasetNames = [
-                # 'sst_fine',
-                # 'sst_binary',
-                # 'opener',
-                # 'sentube_auto',
+                'sst_fine',
+                'sst_binary',
+                'opener',
+                'sentube_auto',
                 'sentube_tablets',
                 'semeval',
                 ]
