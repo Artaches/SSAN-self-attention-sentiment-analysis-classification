@@ -42,7 +42,7 @@ hp = HParams(
 
     # SSAN
     num_layers=1,
-    self_attention_heads=4,
+    self_attention_heads=1,
     qkv_projections_bias_and_activation=True,
     self_attention_sublayer_bias_and_activation=True,
     ffnn_sublayer=False,
